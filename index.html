@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <!-- 資料填寫表單 (新增區塊) -->
+        <!-- 資料填寫表單 -->
         <div id="lead-form" class="hidden glass-card p-8 fade-in">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-indigo-900">最後一步！</h2>
@@ -124,7 +124,7 @@
     </div>
 
     <script>
-        // --- 請在此處貼上你的網址 ---
+        // --- 設定：Google Apps Script 網址 ---
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwFKNFYp8-VEik_GuKJncNEBgSAzniiQmzMrFAH_rIDywvWjfI8HOJ7k-bLWnmZsBbi/exec";
 
         const questions = [
@@ -181,15 +181,12 @@
         function showQuestion() {
             const q = questions[currentQuestionIndex];
             const card = document.getElementById('question-card');
-            
             card.classList.remove('fade-in');
             void card.offsetWidth; 
             card.classList.add('fade-in');
-
             document.getElementById('question-text').innerText = q.q;
             document.getElementById('option-a-text').innerText = q.a.split('(')[0];
             document.getElementById('option-b-text').innerText = q.b.split('(')[0];
-            
             const progress = ((currentQuestionIndex) / questions.length) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
             document.getElementById('progress-text').innerText = `進度: ${Math.round(progress)}%`;
@@ -202,7 +199,6 @@
             const scoreType = answerKey.match(/\((.)\)/)[1];
             scores[scoreType]++;
             currentQuestionIndex++;
-
             if (currentQuestionIndex < questions.length) {
                 showQuestion();
             } else {
@@ -228,7 +224,8 @@
             btnText.innerHTML = '<span class="loading-spinner"></span>正在處理中...';
 
             try {
-                if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwFKNFYp8-VEik_GuKJncNEBgSAzniiQmzMrFAH_rIDywvWjfI8HOJ7k-bLWnmZsBbi/exec") {
+                // 這裡改為: 只要 URL 包含 https 就發送 (避免之前的 !== 邏輯錯誤)
+                if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith("https")) {
                     await fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
                         mode: "no-cors",
@@ -236,7 +233,6 @@
                         body: JSON.stringify({ email, phone, mbti })
                     });
                 }
-                
                 document.getElementById('lead-form').classList.add('hidden');
                 showResult(mbti);
             } catch (error) {
@@ -253,7 +249,6 @@
             document.getElementById('mbti-code').innerText = mbti;
             document.getElementById('mbti-title').innerText = data.title;
             document.getElementById('mbti-description').innerText = data.desc;
-
             const careersDiv = document.getElementById('mbti-careers');
             careersDiv.innerHTML = '';
             data.careers.forEach(career => {
@@ -265,5 +260,4 @@
         }
     </script>
 </body>
-
 </html>
